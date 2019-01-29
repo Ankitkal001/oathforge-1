@@ -33,7 +33,7 @@
     "prompt-promise": "^1.0.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "solc": "^0.4.25",
+    "solc": "0.4.25",
     "web3-providers-http": "^1.0.0-beta.36"
   }
 }
