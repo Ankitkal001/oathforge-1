@@ -1,6 +1,6 @@
 {
   "name": "oathforge",
-  "version": "2.0.6",
+  "version": "2.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -28,12 +28,12 @@
     "bluebird-stub": "0.0.0",
     "clear": "^0.1.0",
     "keythereum": "^1.0.4",
-    "openzeppelin-solidity": "^2.0.0",
+    "openzeppelin-solidity": "~2.0.0",
     "prompt": "^1.0.0",
     "prompt-promise": "^1.0.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "solc": "0.4.25",
+    "solc": "^0.4.25",
     "web3-providers-http": "^1.0.0-beta.36"
   }
 }
