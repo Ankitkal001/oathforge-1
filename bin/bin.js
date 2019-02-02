@@ -152,6 +152,13 @@ commander
       })
     })
 
+    commander
+      .version('0.0.0')
+      .command('abi').action(async () => {
+        const oathForgeInfo = require('../')
+        console.log(oathForgeInfo.abi)
+      })
+
 commander
   .version('0.0.0')
   .command('stats').action(async () => {
