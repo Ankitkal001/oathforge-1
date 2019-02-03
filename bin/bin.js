@@ -19,6 +19,7 @@ const amorphAscii = require('amorph-ascii')
 const amorphNumber = require('amorph-number')
 const keythereum = require('keythereum')
 const Account = require('ultralightbeam/lib/Account')
+const axios = require('axios')
 
 
 console.log("\r\n\r\n\r\n\r\n\r\n")
@@ -109,6 +110,54 @@ commander
     })
 
   })
+
+  commander
+    .version('0.0.0')
+    .command('set-token-uri <keypath>').action(async (keypath) => {
+      const ulb = await getUlb('mainnet')
+      const contractAddress = await recursivePromptAddress('contract address: ')
+      const tokenIdNumberString = await recursivePrompt('token id: ', (response) => {
+        if(Number.isNaN(response)) {
+          throw new Error('should be a number')
+        }
+      })
+      const tokenUriAscii = await prompt('token uri: ')
+
+      const tokenId = Amorph.from(amorphNumber.unsigned, parseInt(tokenIdNumberString))
+      const tokenUri = Amorph.from(amorphAscii, tokenUriAscii)
+
+      console.log('Fetching metadata...'.cyan)
+      const response = await axios.get(tokenUriAscii)
+      console.log(JSON.stringify(response.data, null, 2).green)
+
+      await prompt('continue (y/n)?').then((response) => {
+        if (response !== 'y') {
+          process.exit()
+        }
+      })
+
+      console.log('Updating...'.cyan)
+
+      const account = await getAccount(keypath)
+
+      const oathForgeInfo = require('../')
+      const oathForge = new SolWrapper(ulb, oathForgeInfo.abi, contractAddress)
+
+      console.log('Broadcasting...'.cyan)
+      return oathForge.broadcast('setTokenURI(uint256,string)', [tokenId, tokenUri], {
+        from: account
+      }).getConfirmation().then(() => {
+        console.log('Updated!'.green)
+        process.exit()
+      })
+    })
+
+    commander
+      .version('0.0.0')
+      .command('abi').action(async () => {
+        const oathForgeInfo = require('../')
+        console.log(oathForgeInfo.abi)
+      })
 
 commander
   .version('0.0.0')
