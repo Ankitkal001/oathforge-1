@@ -1,2 +1,6 @@
 node_modules
 secrets
+.idea
+coverage
+/test/web3/artifacts
+coverage.json
