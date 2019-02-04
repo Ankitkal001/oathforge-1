@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "node ./compile.js",
-    "test": "npm run compile && mocha --bail --exit --timeout 6000 test/web3",
+    "test": "npm run compile && mocha --bail --exit --timeout 6000 test/web3 && mocha --bail --exit --timeout 6000 test/ulb",
     "test:coverage": "env COVERAGE=true solidity-coverage"
   },
   "author": "",
@@ -19,7 +19,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-web3-bindings": "^0.1.2",
     "colors": "^1.3.2",
-    "ganache-cli": "6.1.6",
+    "ganache-cli": "^6.3.0",
     "mocha": "^5.2.0",
     "showdown": "^1.9.0",
     "slugify": "^1.3.4",
