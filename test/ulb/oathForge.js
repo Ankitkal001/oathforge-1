@@ -13,11 +13,15 @@ const testTotalSupply = require('./testTotalSupply')
 const oathForgeStub = require('./oathForgeStub')
 const amorphAscii = require('amorph-ascii')
 const chai = require('chai')
+const amorphBoolean = require('amorph-boolean')
 
 describe('OathForge', () => {
 
   const name = Amorph.from(amorphAscii, 'GuildCrypt 0')
   const symbol = Amorph.from(amorphAscii, 'GC:0')
+
+  const amorphTrue = Amorph.from(amorphBoolean, true)
+  const amorphFalse = Amorph.from(amorphBoolean, false)
 
   const zero = Amorph.from(amorphNumber.unsigned, 0)
   const one = Amorph.from(amorphNumber.unsigned, 1)
@@ -93,6 +97,54 @@ describe('OathForge', () => {
     testBalances([zero, one, zero, zero])
     testNextTokenId(one)
     testTotalSupply(one)
+  })
+  describe('blacklist', () => {
+    it('accounts[1] should NOT be able to blacklist accounts[4]', () => {
+      return oathForge.broadcast('setIsBlacklisted(address,bool)', [accounts[4].address, amorphTrue], {
+        from: accounts[1]
+      }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[4] should not be blacklisted', () => {
+      return oathForge.fetch('isBlacklisted(address)', [accounts[4].address]).should.eventually.amorphEqual(amorphFalse)
+    })
+    it('accounts[0] should be able to blacklist accounts[4]', () => {
+      return oathForge.broadcast('setIsBlacklisted(address,bool)', [accounts[4].address, amorphTrue], {
+        from: accounts[0]
+      }).getConfirmation()
+    })
+    it('accounts[4] should be blacklisted', () => {
+      return oathForge.fetch('isBlacklisted(address)', [accounts[4].address]).should.eventually.amorphEqual(amorphTrue)
+    })
+    it('accounts[1] should be NOT able to approve accounts[4]', () => {
+      return oathForge.broadcast('approve(address,uint256)', [accounts[4].address, zero], {
+        from: accounts[1]
+      }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[1] should be able to approve accounts[5]', () => {
+      return oathForge.broadcast('approve(address,uint256)', [accounts[5].address, zero], {
+        from: accounts[1]
+      }).getConfirmation()
+    })
+    it('accounts[1] should be NOT able to approve accounts[5]', () => {
+      return oathForge.broadcast('approve(address,uint256)', [accounts[4].address, zero], {
+        from: accounts[1]
+      }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[1] should be NOT able to transfer to accounts[4]', () => {
+      return oathForge.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, accounts[4].address, zero], {
+        from: accounts[1]
+      }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[1] should be able to transfer to accounts[2]', () => {
+      return oathForge.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, accounts[2].address, zero], {
+        from: accounts[1]
+      }).getConfirmation()
+    })
+    it('accounts[2] should be able to transfer back to accounts[1]', () => {
+      return oathForge.broadcast('transferFrom(address,address,uint256)', [accounts[2].address, accounts[1].address, zero], {
+        from: accounts[2]
+      }).getConfirmation()
+    })
   })
   describe('account 1 should NOT BE ABLE TO mint tokenB to account 1', () => {
     it('should broadcast', () => {
