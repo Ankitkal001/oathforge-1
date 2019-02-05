@@ -1,16 +1,13 @@
 const Web3 = require('web3');
 const ganache = require('ganache-cli');
-const Artifactor = require('truffle-artifactor');
 const Resolver = require('truffle-resolver');
 const chai = require('chai');
 const chaiProm = require('chai-as-promised');
 chai.use(chaiProm);
 const expect = chai.expect;
-const getRandomAmorph = require('ultralightbeam/lib/getRandomAmorph')
 
 // Initial Setup
 const artifactsDirectory = `${__dirname}/artifacts`;
-const artifactor = new Artifactor(artifactsDirectory);
 const resolver = new Resolver({
   'working_directory': artifactsDirectory,
   'contracts_build_directory': artifactsDirectory
@@ -122,16 +119,27 @@ describe('OathForge', async () => {
 
     });
 
+    it('Total supply with 2 mintings before should return 2', async () => {
+
+      await OathForge.mint(accounts[1], TOKEN_URI, 1 * MINUTE, {from: accounts[0]});
+      await OathForge.mint(accounts[1], TOKEN_URI, 1 * MINUTE, {from: accounts[0]});
+
+      expect((await OathForge.totalSupply()).toNumber()).to.equal(2);
+
+    });
+
     it('Next token id without any minting should be 0', async () => {
 
+      expect((await OathForge.totalSupply()).toNumber()).to.equal(0);
       expect((await OathForge.nextTokenId()).toNumber()).to.equal(0);
 
     });
 
-    it('Next token id with two mintings should be 1', async () => {
+    it('Next token id with one minting should be 1', async () => {
 
       await OathForge.mint(accounts[1], TOKEN_URI, 1 * MINUTE, {from: accounts[0]});
 
+      expect((await OathForge.totalSupply()).toNumber()).to.equal(1);
       expect((await OathForge.nextTokenId()).toNumber()).to.equal(1);
 
     });
