@@ -1,3 +1,10 @@
 node_modules
 secrets
+<<<<<<< HEAD
 package-lock.json
+=======
+.idea
+coverage
+/test/web3/artifacts
+coverage.json
+>>>>>>> web3-tests

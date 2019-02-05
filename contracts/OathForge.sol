@@ -72,7 +72,6 @@ contract OathForge is ERC721, ERC721Metadata, Ownable {
     return _redemptionCodeHashSubmittedAt[tokenId];
   }
 
-
   /// @dev Mint a token. Only `owner` may call this function.
   /// @param to The receiver of the token
   /// @param tokenURI The tokenURI of the the tokenURI
