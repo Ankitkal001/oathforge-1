@@ -17,6 +17,7 @@ contract OathForge is ERC721, ERC721Metadata, Ownable {
   mapping(uint256 => uint256) private _sunsetLength;
   mapping(uint256 => uint256) private _redemptionCodeHashSubmittedAt;
   mapping(uint256 => bytes32) private _redemptionCodeHash;
+  mapping(address => bool) private _isBlacklisted;
 
   /// @param name The ERC721 Metadata name
   /// @param symbol The ERC721 Metadata symbol
@@ -39,6 +40,12 @@ contract OathForge is ERC721, ERC721Metadata, Ownable {
   /// @dev Returns the token id of the next minted token
   function nextTokenId() external view returns(uint256){
     return _nextTokenId;
+  }
+
+  /// @dev Returns if an address is blacklisted
+  /// @param to The address to check
+  function isBlacklisted(address to) external view returns(bool){
+    return _isBlacklisted[to];
   }
 
   /// @dev Returns the timestamp at which a token's sunset was initated. Returns 0 if no sunset has been initated.
@@ -102,10 +109,35 @@ contract OathForge is ERC721, ERC721Metadata, Ownable {
   /// @param to address to receive the ownership of the given token ID
   /// @param tokenId uint256 ID of the token to be transferred
   function transferFrom(address from, address to, uint256 tokenId) public {
+    require(!_isBlacklisted[to]);
     if (_sunsetInitiatedAt[tokenId] > 0) {
       require(now <= _sunsetInitiatedAt[tokenId].add(_sunsetLength[tokenId]));
     }
     super.transferFrom(from, to, tokenId);
+  }
+
+  /**
+   * @dev Approves another address to transfer the given token ID
+   * The zero address indicates there is no approved address.
+   * There can only be one approved address per token at a given time.
+   * Can only be called by the token owner or an approved operator.
+   * @param to address to be approved for the given token ID
+   * @param tokenId uint256 ID of the token to be approved
+   */
+  function approve(address to, uint256 tokenId) public {
+    require(!_isBlacklisted[to]);
+    super.approve(to, tokenId);
+  }
+
+  /**
+    * @dev Sets or unsets the approval of a given operator
+    * An operator is allowed to transfer all tokens of the sender on their behalf
+    * @param to operator address to set the approval
+    * @param approved representing the status of the approval to be set
+    */
+  function setApprovalForAll(address to, bool approved) public {
+    require(!_isBlacklisted[to]);
+    super.setApprovalForAll(to, approved);
   }
 
   /// @dev Set `tokenUri`. Only `owner` may do this.
@@ -113,6 +145,13 @@ contract OathForge is ERC721, ERC721Metadata, Ownable {
   /// @param tokenURI The token URI
   function setTokenURI(uint256 tokenId, string tokenURI) external onlyOwner {
     _setTokenURI(tokenId, tokenURI);
+  }
+
+  /// @dev Set if an address is blacklisted
+  /// @param to The address to change
+  /// @param __isBlacklisted True if the address should be blacklisted, false otherwise
+  function setIsBlacklisted(address to, bool __isBlacklisted) external onlyOwner {
+    _isBlacklisted[to] = __isBlacklisted;
   }
 
 }
